@@ -1,0 +1,228 @@
+/* src/ViewDatePage.css */
+
+/* -------- Theme (kept consistent with CalendarPage) -------- */
+:root {
+  --bg: #ffffff;
+  --card: #f7f7f9;
+  --text: #111827;
+  --muted: #6b7280;
+  --accent: #2563eb;
+  --accent-weak: #e0e7ff;
+  --border: #e5e7eb;
+  --shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0f17;
+    --card: #131827;
+    --text: #e5e7eb;
+    --muted: #9aa3b2;
+    --accent: #60a5fa;
+    --accent-weak: #1e293b;
+    --border: #243043;
+    --shadow: 0 8px 24px rgba(0,0,0,0.35);
+  }
+}
+
+/* -------- Page container -------- */
+.view-date-page {
+  color: var(--text);
+  background: var(--bg);
+  max-width: 680px;
+  margin: 2rem auto;
+  padding: 16px;
+}
+
+/* -------- Header / nav -------- */
+.view-date-page .header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 12px;
+  box-shadow: var(--shadow);
+  margin-bottom: 12px;
+}
+
+.view-date-page .nav {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.view-date-page .nav a,
+.view-date-page .auth-buttons a,
+.view-date-page .auth-buttons span {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.view-date-page .nav a:hover {
+  color: var(--text);
+}
+
+/* -------- Heading -------- */
+.view-date-page h2 {
+  margin: 10px 0 12px 0;
+  font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+}
+
+/* -------- Add form -------- */
+.view-date-page form {
+  display: grid;
+  gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+.view-date-page input,
+.view-date-page textarea {
+  width: 100%;
+  color: var(--text);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  .view-date-page input,
+  .view-date-page textarea {
+    background: #0f1524;
+  }
+}
+
+.view-date-page textarea {
+  resize: vertical;
+  min-height: 84px;
+}
+
+.view-date-page input:focus,
+.view-date-page textarea:focus {
+  outline: 3px solid color-mix(in oklab, var(--accent) 35%, transparent);
+  outline-offset: 2px;
+  border-color: var(--accent);
+  background: var(--accent-weak);
+}
+
+.view-date-page button[type="submit"] {
+  justify-self: start;
+}
+
+/* -------- Buttons (generic) -------- */
+.view-date-page button,
+.view-date-page .auth-buttons a {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform 0.06s ease, background 0.2s ease, border-color 0.2s ease;
+  text-decoration: none; /* for <a> buttons */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.view-date-page button:hover,
+.view-date-page .auth-buttons a:hover {
+  transform: translateY(-1px);
+  background: var(--accent-weak);
+  border-color: var(--accent);
+}
+
+.view-date-page button:focus-visible,
+.view-date-page .auth-buttons a:focus-visible {
+  outline: 3px solid color-mix(in oklab, var(--accent) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.view-date-page button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* -------- Event list -------- */
+.view-date-page ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.view-date-page li {
+  display: grid;
+  gap: 6px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.view-date-page li:last-child {
+  border-bottom: 0;
+}
+
+.view-date-page li strong {
+  display: block;
+  font-weight: 700;
+}
+
+.view-date-page li .description {
+  font-size: 13px;
+  opacity: 0.9;
+  white-space: pre-wrap;
+}
+
+/* Containers that hold Edit/Save/Cancel or Edit/Delete button rows */
+.view-date-page li .actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* If you didn't add className="actions" in JSX, buttons still look fine;
+   this adds spacing if you do add the class. */
+
+/* -------- Back button row -------- */
+.view-date-page .back-row {
+  margin-top: 16px;
+}
+
+/* -------- Error state (invalid URL) -------- */
+.view-date-page .error-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.view-date-page .error-card h2 {
+  margin-top: 0;
+}
+
+/* -------- Small screens -------- */
+@media (max-width: 520px) {
+  .view-date-page .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+}
+
+/* -------- Reduce motion -------- */
+@media (prefers-reduced-motion: reduce) {
+  .view-date-page button {
+    transition: none;
+  }
+}

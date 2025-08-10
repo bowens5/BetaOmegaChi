@@ -1,0 +1,122 @@
+/* src/NavBar.css */
+
+/* Reuse the same theme tokens you used elsewhere */
+:root{
+  --bg:#ffffff; --card:#f7f7f9; --text:#111827; --muted:#6b7280;
+  --accent:#2563eb; --accent-weak:#e0e7ff; --border:#e5e7eb;
+  --shadow:0 6px 18px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0b0f17; --card:#131827; --text:#e5e7eb; --muted:#9aa3b2;
+    --accent:#60a5fa; --accent-weak:#1e293b; --border:#243043;
+    --shadow:0 8px 24px rgba(0,0,0,.35);
+  }
+}
+
+.bx-navbar{
+  position: sticky; top:0; z-index: 50;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(6px);
+}
+
+.bx-nav-inner{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bx-brand{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 12px;
+}
+.bx-brand:focus-visible{
+  outline: 3px solid color-mix(in oklab, var(--accent) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.bx-logo{
+  display:inline-grid;
+  place-items:center;
+  width:32px; height:32px;
+  border-radius:10px;
+  background: color-mix(in oklab, var(--accent) 20%, var(--card));
+  color: var(--text);
+  font-weight: 800;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.bx-name{
+  font-weight: 800;
+  letter-spacing: .2px;
+  color: var(--text);
+}
+
+.bx-burger{
+  display: none;
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  align-items: center; justify-content: center;
+  gap: 4px; padding: 8px;
+}
+.bx-burger span{
+  display:block; width: 20px; height: 2px;
+  background: var(--text);
+}
+.bx-burger.open span:nth-child(2){ transform: scaleX(.8); }
+
+.bx-links{
+  display:flex; align-items:center; gap: 10px;
+}
+.nav-link{
+  color: var(--muted);
+  text-decoration: none;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  display:inline-flex; align-items:center;
+}
+.nav-link:hover{
+  color: var(--text);
+  background: var(--accent-weak);
+  border-color: var(--accent);
+}
+.nav-link.active{
+  color: var(--text);
+  background: color-mix(in oklab, var(--accent) 18%, var(--card));
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+}
+.nav-link.as-button{
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+}
+
+@media (max-width: 720px){
+  .bx-burger{ display:flex; }
+  .bx-links{
+    position: absolute; inset-inline: 0;
+    top: 60px;
+    padding: 8px 14px 14px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    display: none; flex-direction: column; gap: 6px;
+  }
+  .bx-links.open{ display: flex; }
+}

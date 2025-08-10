@@ -1,0 +1,57 @@
+/* LoginPage.css */
+
+#login {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  font-family: STIX Two Text;
+}
+
+#login h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #000000;
+}
+
+#login form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+#login label {
+  font-weight: bold;
+  color: #000000;
+}
+
+#login input[type="password"] {
+  padding: 10px;
+  border: 1px solid #bdc3c7;
+  border-radius: 6px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#login input[type="password"]:focus {
+  border-color: #123e1d;
+}
+
+#login button {
+  padding: 10px;
+  background-color: #123e1d;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#login button:hover {
+  background-color: #1b5e19;
+}
