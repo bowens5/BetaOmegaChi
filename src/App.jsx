@@ -11,7 +11,7 @@ import './style.css';
 
 function App() {
   return (
-    <BrowserRouter Basename="/BetaOmegaChi">
+    <BrowserRouter basename="/BetaOmegaChi">
       <NavBar />
       <Routes>
         <Route path="/" element={<HomePage />} />
