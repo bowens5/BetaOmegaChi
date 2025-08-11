@@ -7,6 +7,7 @@ import {
   onAuthStateChanged,
   sendPasswordResetEmail
 } from 'firebase/auth';
+import './LoginPage.css';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ export default function LoginPage() {
     setBusy(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/'); // or '/calendar'
+      navigate('/'); // or navigate('/calendar')
     } catch (e) {
       setErr(niceAuthError(e));
     } finally {
@@ -40,7 +41,10 @@ export default function LoginPage() {
   }
 
   async function resetPassword() {
-    if (!email) return setErr('Enter your email above, then click “Forgot password?”.');
+    if (!email) {
+      setErr('Enter your email above, then click “Forgot password?”.');
+      return;
+    }
     try {
       await sendPasswordResetEmail(auth, email);
       alert('Password reset email sent.');
@@ -50,10 +54,10 @@ export default function LoginPage() {
   }
 
   return (
-    <section style={{ maxWidth: 420, margin: '2rem auto', padding: 16 }}>
+    <section className="login-page">
       <h2>Sign in</h2>
 
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 10 }}>
+      <form onSubmit={handleSubmit}>
         <input
           type="email"
           placeholder="Email"
@@ -63,7 +67,7 @@ export default function LoginPage() {
           required
         />
 
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="pw-row">
           <input
             type={showPw ? 'text' : 'password'}
             placeholder="Password"
@@ -71,18 +75,21 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{ flex: 1 }}
           />
           <button type="button" onClick={() => setShowPw((s) => !s)}>
             {showPw ? 'Hide' : 'Show'}
           </button>
         </div>
 
-        <button type="button" onClick={resetPassword} style={{ justifySelf: 'start' }}>
+        <button type="button" className="link-btn" onClick={resetPassword}>
           Forgot password?
         </button>
 
-        {err && <div style={{ color: 'crimson', fontSize: 14 }}>{err}</div>}
+        {err && (
+          <div className="error" aria-live="polite">
+            {err}
+          </div>
+        )}
 
         <button type="submit" disabled={busy}>
           {busy ? 'Signing in…' : 'Sign in'}

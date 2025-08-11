@@ -1,57 +1,147 @@
-/* LoginPage.css */
+/* src/LoginPage.css */
 
-#login {
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 30px;
-  background-color: #ffffff;
+/* Brand + tokens (works with or without theme.css) */
+:root {
+  --primary: #123e1d;
+  --bg: #ffffff;
+  --card: #f7f7f9;
+  --text: #111827;
+  --muted: #5b6b60;
+  --border: #dee5dc;
+  --shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0f17;
+    --card: #101821;
+    --text: #e5e7eb;
+    --muted: #a8b5ad;
+    --border: #203326;
+    --shadow: 0 8px 24px rgba(0,0,0,0.35);
+  }
+}
+
+/* Page container */
+.login-page {
+  max-width: 420px;
+  margin: 2rem auto;
+  padding: 16px;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.login-page h2 {
+  margin: 0 0 12px;
+  font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+  font-weight: 800;
+}
+
+/* Card-style form */
+.login-page form {
+  display: grid;
+  gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: var(--shadow);
+}
+
+/* Inputs */
+.login-page input[type="email"],
+.login-page input[type="password"],
+.login-page input[type="text"],
+.login-page textarea {
+  width: 100%;
+  color: var(--text);
+  background: #fff;
+  border: 1px solid var(--border);
   border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  font-family: STIX Two Text;
+  padding: 10px 12px;
+  font: inherit;
 }
 
-#login h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #000000;
+@media (prefers-color-scheme: dark) {
+  .login-page input[type="email"],
+  .login-page input[type="password"],
+  .login-page input[type="text"],
+  .login-page textarea {
+    background: #0f1524;
+  }
 }
 
-#login form {
+.login-page input:focus,
+.login-page textarea:focus {
+  outline: 3px solid color-mix(in oklab, var(--primary) 35%, transparent);
+  outline-offset: 2px;
+  border-color: var(--primary);
+  background: color-mix(in oklab, var(--primary) 12%, var(--card));
+}
+
+/* Password row (input + Show/Hide button) */
+.login-page .pw-row {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  gap: 8px;
 }
 
-#login label {
-  font-weight: bold;
-  color: #000000;
+.login-page .pw-row input {
+  flex: 1;
 }
 
-#login input[type="password"] {
-  padding: 10px;
-  border: 1px solid #bdc3c7;
-  border-radius: 6px;
-  font-size: 16px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-#login input[type="password"]:focus {
-  border-color: #123e1d;
-}
-
-#login button {
-  padding: 10px;
-  background-color: #123e1d;
-  border: none;
-  border-radius: 6px;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
+/* Buttons */
+.login-page button {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  box-shadow: var(--shadow);
+  transition: transform .06s ease, background .2s ease, border-color .2s ease;
 }
 
-#login button:hover {
-  background-color: #1b5e19;
+.login-page button:hover {
+  transform: translateY(-1px);
+  background: color-mix(in oklab, var(--primary) 10%, var(--card));
+  border-color: var(--primary);
+}
+
+.login-page button:focus-visible {
+  outline: 3px solid color-mix(in oklab, var(--primary) 35%, transparent);
+  outline-offset: 2px;
+}
+
+/* Primary submit button */
+.login-page button[type="submit"] {
+  background: color-mix(in oklab, var(--primary) 18%, var(--card));
+  border-color: var(--primary);
+  font-weight: 700;
+}
+
+/* “Forgot password?” as a quiet link-button */
+.login-page .link-btn {
+  background: transparent;
+  border: 0;
+  color: var(--primary);
+  padding: 0;
+  box-shadow: none;
+}
+
+.login-page .link-btn:hover {
+  text-decoration: underline;
+  transform: none;
+}
+
+/* Error message */
+.login-page .error {
+  color: #b00020; /* accessible red */
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .login-page button { transition: none; }
 }

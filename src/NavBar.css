@@ -1,23 +1,50 @@
 /* src/NavBar.css */
 
-/* Reuse the same theme tokens you used elsewhere */
+/* ---------- Brand tokens ---------- */
 :root{
-  --bg:#ffffff; --card:#f7f7f9; --text:#111827; --muted:#6b7280;
-  --accent:#2563eb; --accent-weak:#e0e7ff; --border:#e5e7eb;
+  --primary:#123e1d;   /* deep green */
+  --secondary:#f15822; /* orange accent */
+
+  --bg:#ffffff;
+  --card:#f7f9f7;
+  --text:#111827;
+  --muted:#6b7280;
+  --border:#dbe6de;
   --shadow:0 6px 18px rgba(0,0,0,.06);
+
+  /* Navbar-specific */
+  --nav-bg: var(--primary);
+  --nav-fg: #ffffff;
+  --nav-fg-muted: rgba(255,255,255,.85);
+  --nav-border: color-mix(in oklab, var(--nav-bg) 88%, #ffffff);
+  --nav-hover: color-mix(in oklab, var(--secondary) 18%, var(--nav-bg));
+  --nav-active: color-mix(in oklab, var(--secondary) 28%, var(--nav-bg));
 }
+
 @media (prefers-color-scheme: dark){
   :root{
-    --bg:#0b0f17; --card:#131827; --text:#e5e7eb; --muted:#9aa3b2;
-    --accent:#60a5fa; --accent-weak:#1e293b; --border:#243043;
+    --bg:#0b0f17;
+    --card:#101821;
+    --text:#e5e7eb;
+    --muted:#a8b5ad;
+    --border:#203326;
     --shadow:0 8px 24px rgba(0,0,0,.35);
+
+    --nav-bg: color-mix(in oklab, var(--primary) 92%, #0b0f17);
+    --nav-fg:#ffffff;
+    --nav-fg-muted: rgba(255,255,255,.88);
+    --nav-border: color-mix(in oklab, var(--nav-bg) 85%, #ffffff);
+    --nav-hover: color-mix(in oklab, var(--secondary) 22%, var(--nav-bg));
+    --nav-active: color-mix(in oklab, var(--secondary) 32%, var(--nav-bg));
   }
 }
 
+/* ---------- Shell ---------- */
 .bx-navbar{
   position: sticky; top:0; z-index: 50;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  background: var(--nav-bg);
+  color: var(--nav-fg);
+  border-bottom: 1px solid var(--nav-border);
   backdrop-filter: blur(6px);
 }
 
@@ -31,6 +58,7 @@
   gap: 12px;
 }
 
+/* ---------- Brand ---------- */
 .bx-brand{
   display: inline-flex;
   align-items: center;
@@ -40,9 +68,10 @@
   cursor: pointer;
   padding: 6px 8px;
   border-radius: 12px;
+  color: var(--nav-fg);
 }
 .bx-brand:focus-visible{
-  outline: 3px solid color-mix(in oklab, var(--accent) 35%, transparent);
+  outline: 3px solid color-mix(in oklab, var(--secondary) 45%, transparent);
   outline-offset: 2px;
 }
 
@@ -51,72 +80,92 @@
   place-items:center;
   width:32px; height:32px;
   border-radius:10px;
-  background: color-mix(in oklab, var(--accent) 20%, var(--card));
-  color: var(--text);
+  background: var(--secondary);
+  color:#fff;
   font-weight: 800;
   box-shadow: var(--shadow);
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in oklab, var(--secondary) 55%, #ffffff);
 }
 .bx-name{
   font-weight: 800;
   letter-spacing: .2px;
-  color: var(--text);
+  color: var(--nav-fg);
 }
 
+/* ---------- Burger ---------- */
 .bx-burger{
   display: none;
   width: 40px; height: 40px;
   border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--card);
+  border: 1px solid var(--nav-border);
+  background: color-mix(in oklab, var(--nav-bg) 80%, #ffffff);
   box-shadow: var(--shadow);
   align-items: center; justify-content: center;
   gap: 4px; padding: 8px;
 }
 .bx-burger span{
   display:block; width: 20px; height: 2px;
-  background: var(--text);
+  background: var(--nav-fg);
 }
 .bx-burger.open span:nth-child(2){ transform: scaleX(.8); }
 
+/* ---------- Links ---------- */
 .bx-links{
   display:flex; align-items:center; gap: 10px;
 }
+
 .nav-link{
-  color: var(--muted);
+  color: var(--nav-fg-muted);
   text-decoration: none;
   padding: 8px 10px;
   border-radius: 10px;
   border: 1px solid transparent;
   background: transparent;
   display:inline-flex; align-items:center;
+  transition: transform .06s ease, background .2s ease, border-color .2s ease, color .2s ease;
 }
 .nav-link:hover{
-  color: var(--text);
-  background: var(--accent-weak);
-  border-color: var(--accent);
+  color: var(--nav-fg);
+  background: var(--nav-hover);
+  border-color: color-mix(in oklab, var(--secondary) 60%, var(--nav-bg));
 }
 .nav-link.active{
-  color: var(--text);
-  background: color-mix(in oklab, var(--accent) 18%, var(--card));
-  border-color: var(--accent);
+  color: var(--nav-fg);
+  background: var(--nav-active);
+  border-color: color-mix(in oklab, var(--secondary) 70%, var(--nav-bg));
   box-shadow: var(--shadow);
 }
 .nav-link.as-button{
-  border: 1px solid var(--border);
-  background: var(--card);
+  border: 1px solid color-mix(in oklab, var(--nav-fg) 20%, transparent);
+  background: color-mix(in oklab, var(--nav-bg) 80%, #ffffff);
+  color: var(--nav-fg);
   cursor: pointer;
 }
 
+/* ---------- Mobile ---------- */
 @media (max-width: 720px){
   .bx-burger{ display:flex; }
   .bx-links{
     position: absolute; inset-inline: 0;
     top: 60px;
     padding: 8px 14px 14px;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
+    background: var(--nav-bg);
+    border-bottom: 1px solid var(--nav-border);
     display: none; flex-direction: column; gap: 6px;
   }
   .bx-links.open{ display: flex; }
+}
+
+/* ---------- Social link tweaks ---------- */
+.nav-link.social {
+  gap: 6px;
+  line-height: 1;
+}
+.nav-link.social svg {
+  display: inline-block;
+}
+.nav-link.social:hover {
+  color: var(--nav-fg);
+  background: var(--nav-hover);
+  border-color: color-mix(in oklab, var(--secondary) 60%, var(--nav-bg));
 }

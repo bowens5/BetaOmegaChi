@@ -1,27 +1,32 @@
 /* src/ViewDatePage.css */
 
-/* -------- Theme (kept consistent with CalendarPage) -------- */
+/* -------- Brand theme -------- */
 :root {
+  --primary: #123e1d;    /* deep green */
+  --secondary: #f15822;  /* orange accent */
+
   --bg: #ffffff;
-  --card: #f7f7f9;
+  --card: #f7f9f7;
   --text: #111827;
-  --muted: #6b7280;
-  --accent: #2563eb;
-  --accent-weak: #e0e7ff;
-  --border: #e5e7eb;
+  --muted: #5b6b60;
+  --border: #dbe6de;
   --shadow: 0 6px 18px rgba(0,0,0,0.06);
+
+  --accent: var(--primary);
+  --accent-weak: color-mix(in oklab, var(--primary) 14%, #ffffff);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #0b0f17;
-    --card: #131827;
+    --card: #101821;
     --text: #e5e7eb;
-    --muted: #9aa3b2;
-    --accent: #60a5fa;
-    --accent-weak: #1e293b;
-    --border: #243043;
+    --muted: #a8b5ad;
+    --border: #203326;
     --shadow: 0 8px 24px rgba(0,0,0,0.35);
+
+    --accent: color-mix(in oklab, var(--primary) 86%, #78d08f);
+    --accent-weak: color-mix(in oklab, var(--primary) 22%, #0b0f17);
   }
 }
 
@@ -47,13 +52,11 @@
   box-shadow: var(--shadow);
   margin-bottom: 12px;
 }
-
 .view-date-page .nav {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
 }
-
 .view-date-page .nav a,
 .view-date-page .auth-buttons a,
 .view-date-page .auth-buttons span {
@@ -61,15 +64,13 @@
   text-decoration: none;
   font-size: 0.95rem;
 }
-
-.view-date-page .nav a:hover {
-  color: var(--text);
-}
+.view-date-page .nav a:hover { color: var(--text); }
 
 /* -------- Heading -------- */
 .view-date-page h2 {
   margin: 10px 0 12px 0;
   font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+  font-weight: 800;
 }
 
 /* -------- Add form -------- */
@@ -84,6 +85,7 @@
   margin-bottom: 16px;
 }
 
+/* Inputs */
 .view-date-page input,
 .view-date-page textarea {
   width: 100%;
@@ -94,18 +96,13 @@
   padding: 10px 12px;
   font: inherit;
 }
-
 @media (prefers-color-scheme: dark) {
   .view-date-page input,
   .view-date-page textarea {
     background: #0f1524;
   }
 }
-
-.view-date-page textarea {
-  resize: vertical;
-  min-height: 84px;
-}
+.view-date-page textarea { resize: vertical; min-height: 84px; }
 
 .view-date-page input:focus,
 .view-date-page textarea:focus {
@@ -115,13 +112,8 @@
   background: var(--accent-weak);
 }
 
-.view-date-page button[type="submit"] {
-  justify-self: start;
-}
-
-/* -------- Buttons (generic) -------- */
-.view-date-page button,
-.view-date-page .auth-buttons a {
+/* -------- Buttons -------- */
+.view-date-page button {
   appearance: none;
   border: 1px solid var(--border);
   background: var(--card);
@@ -130,29 +122,27 @@
   border-radius: 10px;
   cursor: pointer;
   box-shadow: var(--shadow);
-  transition: transform 0.06s ease, background 0.2s ease, border-color 0.2s ease;
-  text-decoration: none; /* for <a> buttons */
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  transition: transform .06s ease, background .2s ease, border-color .2s ease, color .2s ease;
 }
-
-.view-date-page button:hover,
-.view-date-page .auth-buttons a:hover {
+.view-date-page button:hover {
   transform: translateY(-1px);
-  background: var(--accent-weak);
+  background: color-mix(in oklab, var(--primary) 10%, var(--card));
   border-color: var(--accent);
 }
-
-.view-date-page button:focus-visible,
-.view-date-page .auth-buttons a:focus-visible {
+.view-date-page button:focus-visible {
   outline: 3px solid color-mix(in oklab, var(--accent) 35%, transparent);
   outline-offset: 2px;
 }
 
-.view-date-page button[disabled] {
-  opacity: 0.6;
-  cursor: not-allowed;
+/* Primary submit uses orange accent */
+.view-date-page button[type="submit"] {
+  background: color-mix(in oklab, var(--secondary) 20%, var(--card));
+  border-color: var(--secondary);
+  font-weight: 700;
+}
+.view-date-page button[type="submit"]:hover {
+  background: color-mix(in oklab, var(--secondary) 30%, var(--card));
+  border-color: color-mix(in oklab, var(--secondary) 85%, #fff);
 }
 
 /* -------- Event list -------- */
@@ -161,44 +151,39 @@
   padding: 0;
   margin: 0;
 }
-
 .view-date-page li {
   display: grid;
   gap: 6px;
   padding: 10px 0;
   border-bottom: 1px solid var(--border);
 }
-
-.view-date-page li:last-child {
-  border-bottom: 0;
-}
+.view-date-page li:last-child { border-bottom: 0; }
 
 .view-date-page li strong {
   display: block;
-  font-weight: 700;
+  font-weight: 800;
 }
-
-.view-date-page li .description {
+.view-date-page .description {
   font-size: 13px;
   opacity: 0.9;
   white-space: pre-wrap;
 }
 
-/* Containers that hold Edit/Save/Cancel or Edit/Delete button rows */
-.view-date-page li .actions {
+/* Action buttons row */
+.view-date-page .actions {
   display: flex;
   gap: 8px;
 }
 
-/* If you didn't add className="actions" in JSX, buttons still look fine;
-   this adds spacing if you do add the class. */
+/* -------- Back row -------- */
+.view-date-page .back-row { margin-top: 16px; }
 
-/* -------- Back button row -------- */
-.view-date-page .back-row {
-  margin-top: 16px;
+/* -------- Error text/card -------- */
+.view-date-page .error {
+  color: #b00020;
+  font-size: 14px;
+  margin-top: 6px;
 }
-
-/* -------- Error state (invalid URL) -------- */
 .view-date-page .error-card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -206,10 +191,7 @@
   padding: 14px;
   box-shadow: var(--shadow);
 }
-
-.view-date-page .error-card h2 {
-  margin-top: 0;
-}
+.view-date-page .error-card h2 { margin-top: 0; }
 
 /* -------- Small screens -------- */
 @media (max-width: 520px) {
@@ -222,7 +204,5 @@
 
 /* -------- Reduce motion -------- */
 @media (prefers-reduced-motion: reduce) {
-  .view-date-page button {
-    transition: none;
-  }
+  .view-date-page button { transition: none; }
 }

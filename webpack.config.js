@@ -1,42 +1,55 @@
+// webpack.config.js
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = {
-  mode: 'development',
-  context: path.resolve(__dirname, 'src'),
-  entry: './main.jsx',
-  resolve: {
-    extensions: ['.js', '.jsx'],
-  },
-  output: {
-    filename: 'example.js',
-    path: path.resolve(__dirname, 'dist'),
-    clean: true, // optional: cleans old build files
-  },
-  module: {
-    rules: [
-      {
-        test: /\.jsx?$/,
-        use: 'babel-loader',
-      },
-      {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader']
-      }
-    ]
-  },
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, 'static/index.html'),
-    }),
-  ],
-  devServer: {
-    compress: true,
-    port: 8080,
-    historyApiFallback: true,
-    static: {
-      directory: path.resolve(__dirname, 'static'),
+module.exports = (env, argv) => {
+  const prod = argv.mode === 'production';
+
+  return {
+    entry: './src/main.jsx',
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: prod ? '[name].[contenthash].js' : '[name].js',
+      assetModuleFilename: 'assets/[name].[contenthash][ext][query]',
+      publicPath: 'auto',          // ✅ works under /<repo> on GitHub Pages
+      clean: true                  // ✅ clears old files each build
     },
-    open: true, // automatically open in browser
-  }
+    module: {
+      rules: [
+        {
+          test: /\.jsx?$/,
+          exclude: /node_modules/,
+          use: {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                ['@babel/preset-env', { targets: 'defaults' }],
+                ['@babel/preset-react', { runtime: 'automatic' }],
+              ]
+            }
+          }
+        },
+        { test: /\.css$/i, use: ['style-loader', 'css-loader'] },
+        { test: /\.(png|jpe?g|gif|svg)$/i, type: 'asset' },
+        { test: /\.(woff2?|eot|ttf|otf)$/i, type: 'asset/resource' },
+      ]
+    },
+    resolve: { extensions: ['.js', '.jsx'] },
+    plugins: [
+      new HtmlWebpackPlugin({
+        template: path.resolve(__dirname, 'static/index.html'), // your HTML template
+        inject: 'body',    // ✅ auto-injects the hashed <script> tag
+      }),
+    ],
+    optimization: prod
+      ? { splitChunks: { chunks: 'all' }, runtimeChunk: 'single' } // ✅ better caching
+      : {},
+    devtool: prod ? 'source-map' : 'eval-cheap-module-source-map',
+    devServer: {
+      static: { directory: path.resolve(__dirname, 'dist') },
+      historyApiFallback: true,  // ✅ SPA routing in dev
+      port: 3000,
+      allowedHosts: 'all',
+    },
+  };
 };
