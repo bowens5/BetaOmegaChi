@@ -1,10 +1,10 @@
 // src/ViewDatePage.jsx
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
-import './ViewDatePage.css';
-import './style.css';
+import './CalendarPage.css';
+import './ViewDatePage.css';   // optional if you created it
 
-import { db } from './firebase';
+import { db, auth } from './firebase';
 import {
   addDoc,
   collection,
@@ -21,11 +21,11 @@ import {
 const isValidDateKey = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s);
 
 export default function ViewDatePage() {
-  const params = useParams();                 // expects :dateKey
+  const params = useParams();                 // expects /view-date/:dateKey
   const location = useLocation();
   const navigate = useNavigate();
 
-  // allow fallback via ?dateKey=YYYY-MM-DD if someone links that way
+  // allow fallback via ?dateKey=YYYY-MM-DD
   const dateKeyParam =
     params?.dateKey ??
     new URLSearchParams(location.search).get('dateKey') ??
@@ -51,8 +51,9 @@ export default function ViewDatePage() {
   const [editingId, setEditingId] = useState(null);
   const [editTitle, setEditTitle] = useState('');
   const [editDesc, setEditDesc] = useState('');
+  const [err, setErr] = useState('');
 
-  // Live subscribe to this day's events (reflect local writes immediately)
+  // Live subscribe to this day's events
   useEffect(() => {
     if (invalid) return;
     const qRef = query(
@@ -81,10 +82,14 @@ export default function ViewDatePage() {
 
   async function addEvent(e) {
     e.preventDefault();
-    if (!isLoggedIn) return alert('You must be logged in to add events.');
+    setErr('');
+    if (!isLoggedIn) return; // form won't render when logged out anyway
     const title = newTitle.trim();
     const description = newDesc.trim();
     if (!title) return;
+
+    const user = auth.currentUser;
+    if (!user) { setErr('Please sign in.'); return; }
 
     // Optimistic add
     const tempId = `temp-${crypto.randomUUID?.() || Math.random()}`;
@@ -93,6 +98,7 @@ export default function ViewDatePage() {
       dateKey,
       title,
       description,
+      ownerId: user.uid,
       createdAt: new Date()
     };
     setEvents(prev => [optimistic, ...prev]);
@@ -100,20 +106,19 @@ export default function ViewDatePage() {
     setNewDesc('');
 
     try {
-      const ref = await addDoc(collection(db, 'events'), {
+      const docRef = await addDoc(collection(db, 'events'), {
         dateKey,
         title,
         description,
+        ownerId: user.uid,
         createdAt: serverTimestamp()
       });
-      // Optional immediate reconcile (snapshot will also bring the real doc)
       setEvents(prev =>
-        prev.map(ev => (ev.id === tempId ? { ...optimistic, id: ref.id } : ev))
+        prev.map(ev => (ev.id === tempId ? { ...optimistic, id: docRef.id } : ev))
       );
-    } catch (err) {
-      // rollback on error
-      setEvents(prev => prev.filter(ev => ev.id !== tempId));
-      alert('Failed to add event: ' + err.message);
+    } catch (e) {
+      setEvents(prev => prev.filter(ev => ev.id !== tempId)); // rollback
+      setErr(e?.message || 'Failed to add event.');
     }
   }
 
@@ -133,14 +138,13 @@ export default function ViewDatePage() {
     const d = editDesc.trim();
     if (!t) return;
 
-    // Optimistic edit
-    const snapshot = events; // for rollback
+    const snapshot = events; // rollback snapshot
     setEvents(prev => prev.map(ev => ev.id === id ? { ...ev, title: t, description: d } : ev));
     try {
       await updateDoc(doc(db, 'events', id), { title: t, description: d });
-    } catch (err) {
+    } catch (e) {
       setEvents(snapshot);
-      alert('Failed to save: ' + err.message);
+      setErr(e?.message || 'Failed to save changes.');
     } finally {
       cancelEdit();
     }
@@ -149,56 +153,62 @@ export default function ViewDatePage() {
     if (!isLoggedIn) return;
     if (!confirm('Delete this event?')) return;
 
-    // Optimistic delete
     const snapshot = events;
     setEvents(prev => prev.filter(ev => ev.id !== id));
     try {
       await deleteDoc(doc(db, 'events', id));
-    } catch (err) {
+    } catch (e) {
       setEvents(snapshot);
-      alert('Failed to delete: ' + err.message);
+      setErr(e?.message || 'Failed to delete event.');
     }
   }
 
   if (invalid) {
     return (
-      <section style={{ maxWidth: 600, margin: '2rem auto', padding: 16 }}>
-        <nav className="top-nav">
-          <Link to="/">Home</Link>
-          <Link to="/calendar">Calendar</Link>
-        </nav>
-        <h2>Invalid /view-date URL</h2>
-        <p>Expected format: <code>/view-date/YYYY-MM-DD</code></p>
-        <button onClick={() => navigate('/calendar')}>Go to Calendar</button>
+      <section className="view-date-page">
+        <div className="error-card">
+          <nav className="nav">
+            <Link to="/">Home</Link>
+            <Link to="/calendar">Calendar</Link>
+          </nav>
+          <h2>Invalid /view-date URL</h2>
+          <p>Expected format: <code>/view-date/YYYY-MM-DD</code></p>
+          <button onClick={() => navigate('/calendar')}>Go to Calendar</button>
+        </div>
       </section>
     );
   }
 
   return (
-    <section className="view-date-page" style={{ maxWidth: 640, margin: '2rem auto', padding: 16 }}>
-
+    <section className="view-date-page">
       <h2>{prettyDate}</h2>
 
-      <form onSubmit={addEvent} style={{ display: 'grid', gap: 8, marginBottom: 16 }}>
-        <input
-          placeholder="Title"
-          value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value)}
-          disabled={!isLoggedIn}
-        />
-        <textarea
-          placeholder="Description (optional)"
-          value={newDesc}
-          onChange={(e) => setNewDesc(e.target.value)}
-          rows={3}
-          disabled={!isLoggedIn}
-        />
-        <button type="submit" disabled={!isLoggedIn}>Add Event</button>
-      </form>
+      {/* Render the add form ONLY when logged in */}
+      {isLoggedIn ? (
+        <form onSubmit={addEvent}>
+          <input
+            placeholder="Title"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+          />
+          <textarea
+            placeholder="Description (optional)"
+            value={newDesc}
+            onChange={(e) => setNewDesc(e.target.value)}
+            rows={3}
+          />
+          <button type="submit">Add Event</button>
+          {err && <div style={{ color: 'crimson', marginTop: 6, fontSize: 14 }}>{err}</div>}
+        </form>
+      ) : (
+        <p style={{ margin: '8px 0 16px' }}>
+          Sign in to add events. <Link to="/login">Login</Link>
+        </p>
+      )}
 
-      <ul style={{ listStyle: 'none', padding: 0 }}>
+      <ul>
         {events.map((ev) => (
-          <li key={ev.id} style={{ borderBottom: '1px solid #eee', padding: '10px 0', display: 'grid', gap: 6 }}>
+          <li key={ev.id}>
             {editingId === ev.id ? (
               <>
                 <input
@@ -214,7 +224,7 @@ export default function ViewDatePage() {
                   rows={3}
                   disabled={!isLoggedIn}
                 />
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div className="actions">
                   <button onClick={() => saveEdit(ev.id)} disabled={!isLoggedIn}>Save</button>
                   <button onClick={cancelEdit}>Cancel</button>
                 </div>
@@ -222,15 +232,13 @@ export default function ViewDatePage() {
             ) : (
               <>
                 <div>
-                  <strong style={{ display: 'block' }}>{ev.title ?? ev.text}</strong>
+                  <strong>{ev.title ?? ev.text}</strong>
                   {(ev.description ?? '') && (
-                    <div style={{ fontSize: 13, opacity: 0.9, whiteSpace: 'pre-wrap' }}>
-                      {ev.description}
-                    </div>
+                    <div className="description">{ev.description}</div>
                   )}
                 </div>
                 {isLoggedIn && (
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div className="actions">
                     <button onClick={() => startEdit(ev)}>Edit</button>
                     <button onClick={() => removeEvent(ev.id)}>Delete</button>
                   </div>
@@ -241,7 +249,7 @@ export default function ViewDatePage() {
         ))}
       </ul>
 
-      <div style={{ marginTop: 16 }}>
+      <div className="back-row">
         <button type="button" onClick={() => navigate(-1)}>Back</button>
       </div>
     </section>

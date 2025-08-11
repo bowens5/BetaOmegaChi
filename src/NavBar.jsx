@@ -1,6 +1,8 @@
 // src/NavBar.jsx
 import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+  import { signOut } from 'firebase/auth';
+  import { auth } from './firebase';
 import './NavBar.css';
 
 export default function NavBar() {
@@ -16,7 +18,9 @@ export default function NavBar() {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  const logout = () => {
+
+  const logout = async () => {
+    await signOut(auth);
     localStorage.removeItem('loggedIn');
     setLoggedIn(false);
     navigate('/login');

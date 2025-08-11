@@ -1,39 +1,104 @@
-import React from 'react';
-
-import { useState } from 'react';
+// src/LoginPage.jsx
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './LoginPage.css';
+import { auth } from './firebase';
+import {
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  sendPasswordResetEmail
+} from 'firebase/auth';
 
-function LoginPage() {
-  const [password, setPassword] = useState('');
+export default function LoginPage() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPw, setShowPw] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
 
-  const handleSubmit = (e) => {
+  // Keep localStorage in sync with Firebase auth
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      if (u) localStorage.setItem('loggedIn', 'yes');
+      else localStorage.removeItem('loggedIn');
+    });
+    return () => unsub();
+  }, []);
+
+  async function handleSubmit(e) {
     e.preventDefault();
-    if (password === '2004') {
-      localStorage.setItem('loggedIn', 'yes');
-      navigate('/'); // Redirect to HomePage after login
-    } else {
-      alert('Incorrect password');
+    setErr('');
+    setBusy(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate('/'); // or '/calendar'
+    } catch (e) {
+      setErr(niceAuthError(e));
+    } finally {
+      setBusy(false);
     }
-  };
+  }
+
+  async function resetPassword() {
+    if (!email) return setErr('Enter your email above, then click “Forgot password?”.');
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert('Password reset email sent.');
+    } catch (e) {
+      setErr(niceAuthError(e));
+    }
+  }
 
   return (
-    <section id="login">
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="password">Password:</label>
+    <section style={{ maxWidth: 420, margin: '2rem auto', padding: 16 }}>
+      <h2>Sign in</h2>
+
+      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 10 }}>
         <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          type="email"
+          placeholder="Email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <button type="submit">Login</button>
+
+        <div style={{ display: 'flex', gap: 8 }}>
+          <input
+            type={showPw ? 'text' : 'password'}
+            placeholder="Password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={{ flex: 1 }}
+          />
+          <button type="button" onClick={() => setShowPw((s) => !s)}>
+            {showPw ? 'Hide' : 'Show'}
+          </button>
+        </div>
+
+        <button type="button" onClick={resetPassword} style={{ justifySelf: 'start' }}>
+          Forgot password?
+        </button>
+
+        {err && <div style={{ color: 'crimson', fontSize: 14 }}>{err}</div>}
+
+        <button type="submit" disabled={busy}>
+          {busy ? 'Signing in…' : 'Sign in'}
+        </button>
       </form>
     </section>
   );
 }
 
-export default LoginPage;
+function niceAuthError(e) {
+  const code = e?.code || '';
+  if (code.includes('auth/invalid-credential') || code.includes('auth/wrong-password'))
+    return 'Invalid email or password.';
+  if (code.includes('auth/user-not-found'))
+    return 'No user found for that email.';
+  if (code.includes('auth/too-many-requests'))
+    return 'Too many attempts. Try again later.';
+  return e?.message || 'Authentication failed.';
+}
