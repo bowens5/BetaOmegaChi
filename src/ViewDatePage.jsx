@@ -23,11 +23,10 @@ const shiftDateKey = (key, deltaDays) => {
 };
 
 export default function ViewDatePage() {
-  const params = useParams();                  // /view-date/:dateKey
+  const params = useParams(); // /view-date/:dateKey
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Always derive dateKey from URL — no local state needed
   const dateKey =
     params?.dateKey ??
     new URLSearchParams(location.search).get('dateKey') ??
@@ -38,6 +37,7 @@ export default function ViewDatePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     typeof window !== 'undefined' && localStorage.getItem('loggedIn') === 'yes'
   );
+
   useEffect(() => {
     const onStorage = () => setIsLoggedIn(localStorage.getItem('loggedIn') === 'yes');
     window.addEventListener('storage', onStorage);
@@ -52,9 +52,7 @@ export default function ViewDatePage() {
   const [editDesc, setEditDesc] = useState('');
   const [err, setErr] = useState('');
 
-  // Clear immediately whenever the date changes (snappy UI), then subscribe
   useEffect(() => {
-    // clear list + any in-progress edits/inputs
     setEvents([]);
     setEditingId(null);
     setNewTitle('');
@@ -78,14 +76,16 @@ export default function ViewDatePage() {
   }, [dateKey, invalid]);
 
   const prettyDate = useMemo(() => {
-    if (invalid) return '';
-    const [y, m, d] = dateKey.split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString(undefined, {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
-  }, [dateKey, invalid]);
+  if (invalid) return '';
+  const [y, m, d] = dateKey.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+}, [dateKey, invalid]);
 
-  // Day-to-day navigation — clear immediately, then navigate
   const goToDelta = (delta) => {
     setEvents([]);
     setEditingId(null);
@@ -97,7 +97,6 @@ export default function ViewDatePage() {
   const gotoPrevDay = () => goToDelta(-1);
   const gotoNextDay = () => goToDelta(+1);
 
-  // Keyboard shortcuts: ←/→ or PageUp/PageDown
   useEffect(() => {
     const onKey = (e) => {
       const t = e.target;
@@ -108,7 +107,7 @@ export default function ViewDatePage() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [dateKey]); // rebind with latest handlers
+  }, [dateKey]);
 
   async function addEvent(e) {
     e.preventDefault();
@@ -121,7 +120,6 @@ export default function ViewDatePage() {
     const user = auth.currentUser;
     if (!user) { setErr('Please sign in.'); return; }
 
-    // optimistic add
     const tempId = `temp-${crypto.randomUUID?.() || Math.random()}`;
     const optimistic = { id: tempId, dateKey, title, description, ownerId: user.uid, createdAt: new Date() };
     setEvents(prev => [optimistic, ...prev]);
@@ -187,7 +185,7 @@ export default function ViewDatePage() {
         <button type="button" onClick={gotoNextDay} aria-label="Next day">Next ▶</button>
       </div>
 
-      {/* Add Event form (only when logged in) */}
+      {/* Add Event form */}
       {isLoggedIn ? (
         <form onSubmit={addEvent}>
           <input
@@ -250,7 +248,15 @@ export default function ViewDatePage() {
       </ul>
 
       <div className="back-row">
-        <button type="button" onClick={() => navigate(-1)}>Back</button>
+        <button
+          type="button"
+          onClick={() => {
+            const [year, month] = dateKey.split("-");
+            navigate("/calendar", { state: { year: parseInt(year, 10), month: parseInt(month, 10) - 1 } });
+          }}
+        >
+          Back
+        </button>
       </div>
     </section>
   );

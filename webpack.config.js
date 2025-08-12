@@ -48,7 +48,7 @@ module.exports = (env, argv) => {
     devServer: {
       static: { directory: path.resolve(__dirname, 'dist') },
       historyApiFallback: true,  // ✅ SPA routing in dev
-      port: 3000,
+      port: 8080,
       allowedHosts: 'all',
     },
   };
