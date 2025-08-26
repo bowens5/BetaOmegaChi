@@ -29,6 +29,10 @@
     --accent: color-mix(in oklab, var(--primary) 86%, #78d08f);
     --accent-weak: color-mix(in oklab, var(--primary) 22%, #0b0f17);
   }
+
+  .event-list {
+    color: #f1f1f1;
+  }
 }
 
 .calendar-page {
@@ -170,6 +174,7 @@
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
+
 }
 .event-title {
   overflow: hidden;

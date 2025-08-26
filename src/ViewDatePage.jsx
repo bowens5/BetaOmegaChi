@@ -232,7 +232,11 @@ export default function ViewDatePage() {
       {isLoggedIn ? (
         <form onSubmit={addEvent}>
           <label className="inline">
-            <input type="checkbox" checked={newAllDay} onChange={e=>setNewAllDay(e.target.checked)} /> All Day
+            All Day <input 
+            type="checkbox" 
+            checked={newAllDay} 
+            onChange={e=>setNewAllDay(e.target.checked)} 
+            /> 
           </label>
           {!newAllDay && (
             <div className="time-row">
@@ -264,11 +268,11 @@ export default function ViewDatePage() {
             {editingId === ev.id ? (
               <>
                 <label className="inline">
-                  <input
+                  All Day <input
                     type="checkbox"
                     checked={editAllDay}
                     onChange={(e)=>setEditAllDay(e.target.checked)}
-                  /> All Day
+                  />
                 </label>
                 {!editAllDay && (
                   <div className="time-row">
