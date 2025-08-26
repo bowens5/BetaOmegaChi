@@ -1,5 +1,5 @@
 // src/CalendarPage.jsx
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './style.css';
 import './CalendarPage.css';
@@ -128,7 +128,63 @@ export default function CalendarPage() {
     return () => window.removeEventListener('keydown', onKey);
   }, [viewYear, viewMonth]);
 
+  // --- Swipe-to-change-month (Pointer Events) -----------------------------
+  const startXY = useRef({ x: 0, y: 0 });
+  const dragging = useRef(false);
+  const didSwipe = useRef(false);
+  const startTime = useRef(0);
+
+  // thresholds: tuned for mobile; tweak if desired
+  const SWIPE_PX = 48;     // horizontal distance needed
+  const MAX_ANGLE = 30;    // max degrees from horizontal allowed
+  const MAX_MS = 800;      // max gesture duration
+
+  const setDidSwipeSoon = () => {
+    didSwipe.current = true;
+    // Clear on next tick so taps work right after the swipe ends
+    setTimeout(() => (didSwipe.current = false), 0);
+  };
+
+  const onPointerDown = (e) => {
+    // Respond to touch or primary mouse button
+    if (e.pointerType !== 'touch' && e.button !== 0) return;
+    dragging.current = true;
+    startTime.current = performance.now();
+    startXY.current = { x: e.clientX, y: e.clientY };
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  };
+
+  const onPointerMove = (/* e */) => {
+    if (!dragging.current) return;
+    // We only decide at release.
+  };
+
+  const onPointerUp = (e) => {
+    if (!dragging.current) return;
+    dragging.current = false;
+
+    const dt = performance.now() - startTime.current;
+    const dx = e.clientX - startXY.current.x;
+    const dy = e.clientY - startXY.current.y;
+
+    const angle = Math.abs(Math.atan2(dy, dx) * (180 / Math.PI));
+    const isHorizontal = angle <= MAX_ANGLE || angle >= (180 - MAX_ANGLE);
+    const passedDist = Math.abs(dx) >= SWIPE_PX;
+    const quickEnough = dt <= MAX_MS;
+
+    if (isHorizontal && passedDist && quickEnough) {
+      if (dx < 0) {
+        goNextMonth(); // swipe left → next
+      } else {
+        goPrevMonth(); // swipe right → prev
+      }
+      setDidSwipeSoon(); // prevents click on day after swipe
+    }
+  };
+  // -----------------------------------------------------------------------
+
   const openDate = (day) => {
+    if (didSwipe.current) return; // ignore click caused by swipe release
     const date = new Date(viewYear, viewMonth, day);
     const dateKey = toKey(date);
     navigate(`/view-date/${dateKey}`);
@@ -211,7 +267,15 @@ export default function CalendarPage() {
       <h2>Club Calendar</h2>
       <p className="calendar-note">Click a date to view and (if logged in) add events for that day.</p>
 
-      <div id="calendarGrid" className="calendar-grid" key={`${viewYear}-${viewMonth}`}>
+      <div
+        id="calendarGrid"
+        className="calendar-grid"
+        key={`${viewYear}-${viewMonth}`}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+      >
         {cells}
       </div>
     </section>

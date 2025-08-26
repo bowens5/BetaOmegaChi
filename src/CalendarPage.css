@@ -108,6 +108,8 @@
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px;
+  touch-action: pan-y;
+  overscroll-behavior-x: contain;
 }
 
 /* ---------- Cells (header + days) ---------- */
@@ -226,3 +228,4 @@
   opacity: 0.75;
   line-height: 1.1;
 }
+
