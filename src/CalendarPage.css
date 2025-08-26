@@ -205,3 +205,19 @@
   background: color-mix(in oklab, var(--secondary) 25%, var(--card));
   border-color: color-mix(in oklab, var(--secondary) 70%, var(--border));
 }
+
+.event-title{font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.event-title .when{font-variant-numeric:tabular-nums;opacity:.75;margin-right:.25rem}
+
+/* Place under your existing rules */
+.event-title {
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.event-time {
+  font-size: 0.75rem;
+  opacity: 0.75;
+  line-height: 1.1;
+}

@@ -13,14 +13,28 @@ import {
 const isValidDateKey = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s);
 
 // helpers
-const pad2 = (n) => String(n).padStart(2, '0');
-const toKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-const shiftDateKey = (key, deltaDays) => {
-  const [y, m, d] = key.split('-').map(Number);
+function shiftDateKey(dateKey, deltaDays) {
+  const [y, m, d] = dateKey.split('-').map(Number);
   const dt = new Date(y, m - 1, d);
   dt.setDate(dt.getDate() + deltaDays);
-  return toKey(dt);
-};
+  const pad2 = (n) => String(n).padStart(2, '0');
+  return `${dt.getFullYear()}-${pad2(dt.getMonth() + 1)}-${pad2(dt.getDate())}`;
+}
+
+function normalizeTime(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':');
+  const pad2 = (n) => String(n).padStart(2, '0');
+  return `${pad2(+h)}:${pad2(+(m ?? 0))}`;
+}
+
+function formatTime12h(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour12 = ((h + 11) % 12) + 1;
+  return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
+}
 
 export default function ViewDatePage() {
   const params = useParams(); // /view-date/:dateKey
@@ -38,18 +52,18 @@ export default function ViewDatePage() {
     typeof window !== 'undefined' && localStorage.getItem('loggedIn') === 'yes'
   );
 
-  useEffect(() => {
-    const onStorage = () => setIsLoggedIn(localStorage.getItem('loggedIn') === 'yes');
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, []);
-
   const [events, setEvents] = useState([]);
   const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
+  const [newAllDay, setNewAllDay] = useState(false);
+  const [newStartTime, setNewStartTime] = useState('');
+  const [newEndTime, setNewEndTime] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editTitle, setEditTitle] = useState('');
   const [editDesc, setEditDesc] = useState('');
+  const [editAllDay, setEditAllDay] = useState(false);
+  const [editStartTime, setEditStartTime] = useState('');
+  const [editEndTime, setEditEndTime] = useState('');
   const [err, setErr] = useState('');
 
   useEffect(() => {
@@ -57,6 +71,9 @@ export default function ViewDatePage() {
     setEditingId(null);
     setNewTitle('');
     setNewDesc('');
+    setNewAllDay(false);
+    setNewStartTime('');
+    setNewEndTime('');
     setErr('');
 
     if (invalid) return;
@@ -69,6 +86,12 @@ export default function ViewDatePage() {
 
     const unsub = onSnapshot(qRef, { includeMetadataChanges: true }, (snap) => {
       const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      rows.sort((a,b)=>{
+        const ad = a.allDay ? 1 : 0; const bd = b.allDay ? 1 : 0;
+        if (ad !== bd) return bd - ad; // all-day first
+        const as = (a.startTime || '99:99'); const bs = (b.startTime || '99:99');
+        return as.localeCompare(bs);
+      });
       setEvents(rows);
     });
 
@@ -76,15 +99,15 @@ export default function ViewDatePage() {
   }, [dateKey, invalid]);
 
   const prettyDate = useMemo(() => {
-  if (invalid) return '';
-  const [y, m, d] = dateKey.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric'
-  });
-}, [dateKey, invalid]);
+    if (invalid) return '';
+    const [y, m, d] = dateKey.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }, [dateKey, invalid]);
 
   const goToDelta = (delta) => {
     setEvents([]);
@@ -120,37 +143,59 @@ export default function ViewDatePage() {
     const user = auth.currentUser;
     if (!user) { setErr('Please sign in.'); return; }
 
+    const allDay = !!newAllDay;
+    const st = allDay ? '' : normalizeTime(newStartTime);
+    const et = allDay ? '' : normalizeTime(newEndTime);
+
+    if (!allDay) {
+      if (!st || !et) { setErr('Please provide start and end times or mark as All Day.'); return; }
+      if (st > et) { setErr('Start time must be before end time.'); return; }
+    }
+
     const tempId = `temp-${crypto.randomUUID?.() || Math.random()}`;
-    const optimistic = { id: tempId, dateKey, title, description, ownerId: user.uid, createdAt: new Date() };
+    const optimistic = { id: tempId, dateKey, title, description, allDay, startTime: st, endTime: et, ownerId: user.uid, createdAt: new Date() };
     setEvents(prev => [optimistic, ...prev]);
-    setNewTitle(''); setNewDesc('');
 
     try {
-      const docRef = await addDoc(collection(db, 'events'), {
-        dateKey, title, description, ownerId: user.uid, createdAt: serverTimestamp()
+      const saved = await addDoc(collection(db, 'events'), {
+        dateKey, title, description, allDay, startTime: st, endTime: et, ownerId: user.uid, createdAt: serverTimestamp()
       });
-      setEvents(prev => prev.map(ev => (ev.id === tempId ? { ...optimistic, id: docRef.id } : ev)));
+      setEvents(prev => prev.map(ev => ev.id === tempId ? { ...optimistic, id: saved.id } : ev));
+      setNewTitle(''); setNewDesc(''); setNewAllDay(false); setNewStartTime(''); setNewEndTime('');
     } catch (e2) {
-      setEvents(prev => prev.filter(ev => ev.id !== tempId));
       setErr(e2?.message || 'Failed to add event.');
+      setEvents(prev => prev.filter(ev => ev.id !== tempId));
     }
   }
 
-  function startEdit(ev) {
+  function beginEdit(ev) {
     setEditingId(ev.id);
-    setEditTitle(ev.title ?? ev.text ?? '');
+    setEditTitle(ev.title ?? '');
     setEditDesc(ev.description ?? '');
+    setEditAllDay(!!ev.allDay);
+    setEditStartTime(ev.startTime ?? '');
+    setEditEndTime(ev.endTime ?? '');
   }
   function cancelEdit() {
     setEditingId(null); setEditTitle(''); setEditDesc('');
+    setEditAllDay(false); setEditStartTime(''); setEditEndTime('');
   }
   async function saveEdit(id) {
     if (!isLoggedIn) return;
     const t = editTitle.trim(); const d = editDesc.trim();
     if (!t) return;
+
+    const allDay = !!editAllDay;
+    const st = allDay ? '' : normalizeTime(editStartTime);
+    const et = allDay ? '' : normalizeTime(editEndTime);
+    if (!allDay) {
+      if (!st || !et) { setErr('Please provide start and end times or mark as All Day.'); return; }
+      if (st > et) { setErr('Start time must be before end time.'); return; }
+    }
+
     const snapshot = events;
-    setEvents(prev => prev.map(ev => ev.id === id ? { ...ev, title: t, description: d } : ev));
-    try { await updateDoc(doc(db, 'events', id), { title: t, description: d }); }
+    setEvents(prev => prev.map(ev => ev.id === id ? { ...ev, title: t, description: d, allDay, startTime: st, endTime: et } : ev));
+    try { await updateDoc(doc(db, 'events', id), { title: t, description: d, allDay, startTime: st, endTime: et }); }
     catch (e2) { setEvents(snapshot); setErr(e2?.message || 'Failed to save changes.'); }
     finally { cancelEdit(); }
   }
@@ -176,10 +221,8 @@ export default function ViewDatePage() {
   }
 
   return (
-    <section className="view-date-page" key={dateKey}>
-
-      {/* Day-to-day controls */}
-      <div className="calendar-controls" aria-label="Day navigation">
+    <section className="view-date-page">
+      <div className="calendar-controls">
         <button type="button" onClick={gotoPrevDay} aria-label="Previous day">◀ Previous</button>
         <div className="current-month">{prettyDate}</div>
         <button type="button" onClick={gotoNextDay} aria-label="Next day">Next ▶</button>
@@ -188,6 +231,15 @@ export default function ViewDatePage() {
       {/* Add Event form */}
       {isLoggedIn ? (
         <form onSubmit={addEvent}>
+          <label className="inline">
+            <input type="checkbox" checked={newAllDay} onChange={e=>setNewAllDay(e.target.checked)} /> All Day
+          </label>
+          {!newAllDay && (
+            <div className="time-row">
+              <input type="time" value={newStartTime} onChange={e=>setNewStartTime(e.target.value)} aria-label="Start time" />
+              <input type="time" value={newEndTime} onChange={e=>setNewEndTime(e.target.value)} aria-label="End time" />
+            </div>
+          )}
           <input
             placeholder="Title"
             value={newTitle}
@@ -211,6 +263,19 @@ export default function ViewDatePage() {
           <li key={ev.id}>
             {editingId === ev.id ? (
               <>
+                <label className="inline">
+                  <input
+                    type="checkbox"
+                    checked={editAllDay}
+                    onChange={(e)=>setEditAllDay(e.target.checked)}
+                  /> All Day
+                </label>
+                {!editAllDay && (
+                  <div className="time-row">
+                    <input type="time" value={editStartTime} onChange={(e)=>setEditStartTime(e.target.value)} aria-label="Start time" />
+                    <input type="time" value={editEndTime} onChange={(e)=>setEditEndTime(e.target.value)} aria-label="End time" />
+                  </div>
+                )}
                 <input
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
@@ -231,14 +296,15 @@ export default function ViewDatePage() {
               <>
                 <div>
                   <strong>{ev.title ?? ev.text}</strong>
-                  {(ev.description ?? '') && (
-                    <div className="description">{ev.description}</div>
-                  )}
+                  <div className="event-time">
+                    {ev.allDay ? 'All Day' : `${formatTime12h(ev.startTime ?? '')}${ev.endTime ? ' – ' + formatTime12h(ev.endTime) : ''}`}
+                  </div>
                 </div>
+                <div className="desc">{ev.description}</div>
                 {isLoggedIn && (
                   <div className="actions">
-                    <button onClick={() => startEdit(ev)}>Edit</button>
-                    <button onClick={() => removeEvent(ev.id)}>Delete</button>
+                    <button onClick={() => beginEdit(ev)}>Edit</button>
+                    <button className="danger" onClick={() => removeEvent(ev.id)}>Delete</button>
                   </div>
                 )}
               </>

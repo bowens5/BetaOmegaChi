@@ -206,3 +206,5 @@
 @media (prefers-reduced-motion: reduce) {
   .view-date-page button { transition: none; }
 }
+
+.event-time{font-size:.9rem;opacity:.8}

@@ -23,23 +23,30 @@ function monthKeyRange(year, month /* 0-based */) {
   const end = `${y}-${mm}-${String(last).padStart(2,'0')}`;
   return { start, end };
 }
+function formatTime12h(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour12 = ((h + 11) % 12) + 1;
+  return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
+}
 
 export default function CalendarPage() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // view box
   const today = new Date();
   const todayKey = toKey(today);
 
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth()); // 0-11
-
-  // eventsByDate: { 'YYYY-MM-DD': [{id, title/text, dateKey, createdAt}, ...] }
   const [eventsByDate, setEventsByDate] = useState({});
 
   useEffect(() => {
+    // optional deep link jump from /view-date back to calendar
     if (
-      location &&
-      location.state &&
+      location?.state &&
       Number.isInteger(location.state.year) &&
       Number.isInteger(location.state.month)
     ) {
@@ -96,27 +103,30 @@ export default function CalendarPage() {
     setViewMonth(t.getMonth());
   };
 
-  // Keyboard month navigation: Left/PageUp = previous, Right/PageDown = next
-useEffect(() => {
-  const onKey = (e) => {
-    const t = e.target;
-    const typing =
-      t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
-    if (typing) return;
+  // Keyboard month navigation
+  useEffect(() => {
+    const onKey = (e) => {
+      const t = e.target;
+      const typing =
+        t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+      if (typing) return;
 
-    if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-      e.preventDefault();
-      goPrevMonth();
-    }
-    if (e.key === 'ArrowRight' || e.key === 'PageDown') {
-      e.preventDefault();
-      goNextMonth();
-    }
-  };
-
-  window.addEventListener('keydown', onKey);
-  return () => window.removeEventListener('keydown', onKey);
-}, [goPrevMonth, goNextMonth]);
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        goPrevMonth();
+      }
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+        e.preventDefault();
+        goNextMonth();
+      }
+      if (e.key === 't' || e.key === 'T') {
+        e.preventDefault();
+        goToday();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [viewYear, viewMonth]);
 
   const openDate = (day) => {
     const date = new Date(viewYear, viewMonth, day);
@@ -135,7 +145,14 @@ useEffect(() => {
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(viewYear, viewMonth, day);
     const dateKey = toKey(date);
-    const events = eventsByDate[dateKey] || [];
+    let events = eventsByDate[dateKey] || [];
+    // Sort: all-day first, then by start time
+    events = [...events].sort((a,b)=>{
+      const ad = a.allDay ? 1 : 0; const bd = b.allDay ? 1 : 0;
+      if (ad !== bd) return bd - ad;
+      const as = (a.startTime || '99:99'); const bs = (b.startTime || '99:99');
+      return as.localeCompare(bs);
+    });
     const isToday = dateKey === todayKey;
 
     const label = `${date.toLocaleDateString(undefined, {
@@ -157,9 +174,13 @@ useEffect(() => {
           <div className="event-list">
             {events.slice(0, 2).map((ev) => {
               const title = ev.title ?? ev.text ?? '';
+              const when = ev.allDay
+                ? 'All Day'
+                : (ev.startTime ? `${formatTime12h(ev.startTime)}${ev.endTime ? '–' + formatTime12h(ev.endTime) : ''}` : '');
               return (
                 <div key={ev.id} className="event-title">
                   {title.length > 16 ? title.slice(0, 16) + '…' : title}
+                  <div className="event-time">{when}</div>
                 </div>
               );
             })}
