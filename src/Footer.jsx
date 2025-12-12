@@ -27,6 +27,7 @@ export default function Footer() {
             </svg>
             <span>@huinstabox</span>
           </a>
+          
 
           <a
             href="https://checkout.square.site/merchant/ML86ZRA45HVGS/checkout/NSNJ2J654V37U57ZOOI2YYZT"
