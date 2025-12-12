@@ -1,6 +1,10 @@
 node_modules/ 
 dist/ 
-docs/*-report.html 
+docs/*
+!docs/.nojekyll
+!docs/index.html
+!docs/assets/**
+!docs/main.js
 .env 
 .DS_Store 
 *.log 
