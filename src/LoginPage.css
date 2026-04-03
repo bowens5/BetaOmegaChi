@@ -1,147 +1,133 @@
-/* src/LoginPage.css */
+/* src/LoginPage.css — tokens from main.css */
 
-/* Brand + tokens (works with or without theme.css) */
-:root {
-  --primary: #123e1d;
-  --bg: #ffffff;
-  --card: #f7f7f9;
-  --text: #111827;
-  --muted: #5b6b60;
-  --border: #dee5dc;
-  --shadow: 0 6px 18px rgba(0,0,0,0.06);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0b0f17;
-    --card: #101821;
-    --text: #e5e7eb;
-    --muted: #a8b5ad;
-    --border: #203326;
-    --shadow: 0 8px 24px rgba(0,0,0,0.35);
-  }
-}
-
-/* Page container */
 .login-page {
   max-width: 420px;
-  margin: 2rem auto;
-  padding: 16px;
+  margin: 60px auto 80px;
+  padding: 0 20px;
   color: var(--text);
-  background: var(--bg);
 }
 
 .login-page h2 {
-  margin: 0 0 12px;
-  font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+  font-size: clamp(1.6rem, 4vw, 2rem);
   font-weight: 800;
+  margin-bottom: 6px;
 }
 
-/* Card-style form */
+.login-page > p.muted {
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+/* ── Card form ── */
 .login-page form {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 12px;
+  border-radius: var(--radius-lg);
+  padding: 24px;
   box-shadow: var(--shadow);
 }
 
-/* Inputs */
+/* ── Inputs ── */
 .login-page input[type="email"],
 .login-page input[type="password"],
-.login-page input[type="text"],
-.login-page textarea {
+.login-page input[type="text"] {
   width: 100%;
   color: var(--text);
-  background: #fff;
+  background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 12px;
-  font: inherit;
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  font-family: var(--font-body);
+  font-size: 0.97rem;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
-
-@media (prefers-color-scheme: dark) {
-  .login-page input[type="email"],
-  .login-page input[type="password"],
-  .login-page input[type="text"],
-  .login-page textarea {
-    background: #0f1524;
-  }
-}
-
-.login-page input:focus,
-.login-page textarea:focus {
-  outline: 3px solid color-mix(in oklab, var(--primary) 35%, transparent);
+.login-page input:focus {
+  outline: 3px solid var(--ring);
   outline-offset: 2px;
-  border-color: var(--primary);
-  background: color-mix(in oklab, var(--primary) 12%, var(--card));
+  border-color: var(--green);
+  background: color-mix(in oklab, var(--bg) 94%, var(--green));
 }
 
-/* Password row (input + Show/Hide button) */
+/* ── Password row ── */
 .login-page .pw-row {
   display: flex;
   gap: 8px;
+  align-items: stretch;
 }
-
-.login-page .pw-row input {
-  flex: 1;
-}
-
-/* Buttons */
-.login-page button {
-  appearance: none;
+.login-page .pw-row input { flex: 1; }
+.login-page .pw-row button {
+  padding: 0 13px;
+  font-size: 0.82rem;
+  font-family: var(--font-body);
+  background: var(--elev);
+  color: var(--text-2);
   border: 1px solid var(--border);
-  background: var(--card);
-  color: var(--text);
-  padding: 8px 12px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  box-shadow: var(--shadow);
-  transition: transform .06s ease, background .2s ease, border-color .2s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+.login-page .pw-row button:hover {
+  background: color-mix(in oklab, var(--elev) 70%, var(--green));
+  border-color: var(--green);
 }
 
-.login-page button:hover {
+/* ── Submit button ── */
+.login-page button[type="submit"] {
+  background: var(--green);
+  color: #fff;
+  border: 1px solid var(--green-mid);
+  border-radius: var(--radius-sm);
+  padding: 12px 20px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(18,62,29,0.22);
+  transition: background 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease;
+}
+.login-page button[type="submit"]:hover {
+  background: var(--green-mid);
   transform: translateY(-1px);
-  background: color-mix(in oklab, var(--primary) 10%, var(--card));
-  border-color: var(--primary);
+  box-shadow: 0 6px 18px rgba(18,62,29,0.28);
 }
-
-.login-page button:focus-visible {
-  outline: 3px solid color-mix(in oklab, var(--primary) 35%, transparent);
+.login-page button[type="submit"]:focus-visible {
+  outline: 3px solid var(--ring);
   outline-offset: 2px;
 }
-
-/* Primary submit button */
-.login-page button[type="submit"] {
-  background: color-mix(in oklab, var(--primary) 18%, var(--card));
-  border-color: var(--primary);
-  font-weight: 700;
-}
-
-/* “Forgot password?” as a quiet link-button */
-.login-page .link-btn {
-  background: transparent;
-  border: 0;
-  color: var(--primary);
-  padding: 0;
-  box-shadow: none;
-}
-
-.login-page .link-btn:hover {
-  text-decoration: underline;
+.login-page button[type="submit"]:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
   transform: none;
 }
 
-/* Error message */
-.login-page .error {
-  color: #b00020; /* accessible red */
-  font-size: 14px;
-  margin-top: 4px;
+/* ── Forgot password link-button ── */
+.login-page .link-btn {
+  background: transparent;
+  border: 0;
+  color: var(--orange);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  box-shadow: none;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 0.15s ease;
+}
+.login-page .link-btn:hover {
+  text-decoration-color: var(--orange);
 }
 
-/* Reduce motion */
+/* ── Small screens ── */
+@media (max-width: 480px) {
+  .login-page { margin-top: 32px; padding: 0 14px; }
+  .login-page form { padding: 18px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .login-page button { transition: none; }
 }

@@ -1,13 +1,131 @@
-body {
+/* ═══════════════════════════════════════════════════
+   Beta Omega Chi — Design System
+   Single source of truth for all CSS tokens.
+   Every other CSS file inherits from here.
+═══════════════════════════════════════════════════ */
+
+/* ── Design Tokens ──────────────────────────────── */
+:root {
+  /* Brand */
+  --green:        #123e1d;
+  --green-mid:    #1a5227;
+  --orange:       #f15822;
+  --orange-dark:  #c84513;
+
+  /* Aliases used throughout component CSS */
+  --primary:      var(--green);
+  --secondary:    var(--orange);
+  --accent:       var(--green);
+  --accent-weak:  color-mix(in oklab, var(--green) 12%, #ffffff);
+
+  /* Light-mode surfaces (default) */
+  --bg:           #faf8f4;
+  --card:         #ffffff;
+  --elev:         #f2efe8;
+  --surface-2:    #eceae3;
+  --text:         #1c1c1a;
+  --text-2:       #3d3d38;
+  --muted:        #706e62;
+  --border:       #dedad0;
+  --shadow-sm:    0 1px 4px rgba(18, 62, 29, 0.07);
+  --shadow:       0 4px 16px rgba(18, 62, 29, 0.10);
+  --shadow-lg:    0 12px 36px rgba(18, 62, 29, 0.14);
+
+  /* Components */
+  --radius-sm:    8px;
+  --radius:       12px;
+  --radius-lg:    18px;
+  --ring:         rgba(241, 88, 34, 0.35);
+
+  /* Typography */
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body:    'Lora', Georgia, 'Times New Roman', serif;
+
+  /* Nav (component-local, still defined globally for consistency) */
+  --nav-bg:       var(--green);
+  --nav-fg:       #ffffff;
+  --nav-fg-muted: rgba(255, 255, 255, 0.82);
+  --nav-border:   color-mix(in oklab, var(--green) 80%, #ffffff);
+  --nav-hover:    color-mix(in oklab, var(--orange) 18%, var(--green));
+  --nav-active:   color-mix(in oklab, var(--orange) 28%, var(--green));
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:           #0d1a10;
+    --card:         #12211a;
+    --elev:         #192d1f;
+    --surface-2:    #1e3526;
+    --text:         #edeae0;
+    --text-2:       #b8b4a4;
+    --muted:        #8a8778;
+    --border:       #253d2a;
+    --shadow-sm:    0 1px 4px rgba(0, 0, 0, 0.30);
+    --shadow:       0 4px 18px rgba(0, 0, 0, 0.40);
+    --shadow-lg:    0 16px 48px rgba(0, 0, 0, 0.55);
+
+    --accent-weak:  color-mix(in oklab, var(--green) 20%, #0d1a10);
+
+    --nav-bg:       color-mix(in oklab, var(--green) 90%, #0d1a10);
+    --nav-border:   color-mix(in oklab, var(--green) 75%, #ffffff);
+    --nav-hover:    color-mix(in oklab, var(--orange) 22%, var(--nav-bg));
+    --nav-active:   color-mix(in oklab, var(--orange) 32%, var(--nav-bg));
+  }
+}
+
+/* ── Reset ──────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  padding: 0;
+}
+
+/* ── Base ───────────────────────────────────────── */
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.75;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  line-height: 1.2;
+  color: var(--text);
+}
+
+a {
+  color: var(--orange);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+/* ── App shell ──────────────────────────────────── */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* ── Utility ────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: 'Courier New', Courier, monospace;
 }

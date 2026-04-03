@@ -1,137 +1,56 @@
-/* src/CalendarPage.css */
-
-/* ---------- Brand theme ---------- */
-:root {
-  --primary: #123e1d;    /* deep green */
-  --secondary: #f15822;  /* orange accent */
-
-  --bg: #ffffff;
-  --card: #f7f9f7;
-  --text: #111827;
-  --muted: #5b6b60;
-  --border: #dbe6de;
-  --shadow: 0 6px 18px rgba(0,0,0,0.06);
-
-  /* Controls + focus */
-  --accent: var(--primary);
-  --accent-weak: color-mix(in oklab, var(--primary) 14%, #ffffff);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0b0f17;
-    --card: #101821;
-    --text: #e5e7eb;
-    --muted: #a8b5ad;
-    --border: #203326;
-    --shadow: 0 8px 24px rgba(0,0,0,0.35);
-
-    --accent: color-mix(in oklab, var(--primary) 86%, #78d08f);
-    --accent-weak: color-mix(in oklab, var(--primary) 22%, #0b0f17);
-  }
-
-  .event-list {
-    color: #f1f1f1;
-  }
-}
+/* src/CalendarPage.css — tokens from main.css */
 
 .calendar-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
   color: var(--text);
-  background: var(--bg);
-  min-height: 100dvh;
-  padding: 1.25rem;
 }
 
-/* ---------- Top nav (keep if used) ---------- */
-.top-nav {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-}
-.top-nav a, .top-nav span {
-  font-size: 0.95rem;
-  color: var(--muted);
-  text-decoration: none;
-}
-.top-nav a:hover { color: var(--text); }
-
-/* ---------- Month controls ---------- */
-.calendar-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 0.25rem 0 1rem 0;
-}
-.calendar-controls button {
-  appearance: none;
-  border: 1px solid var(--border);
-  background: var(--card);
-  color: var(--text);
-  padding: 0.45rem 0.7rem;
-  border-radius: 10px;
-  cursor: pointer;
-  box-shadow: var(--shadow);
-  transition: transform 0.06s ease, background 0.2s ease, border-color 0.2s ease;
-}
-.calendar-controls button:hover {
-  transform: translateY(-1px);
-  background: var(--accent-weak);
-  border-color: var(--accent);
-}
-.calendar-controls button:focus-visible {
-  outline: 3px solid color-mix(in oklab, var(--accent) 35%, transparent);
-  outline-offset: 2px;
-}
-.current-month {
-  margin: 0 0.25rem;
-  padding: 0.25rem 0.5rem;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-}
-
-/* ---------- Headings / note ---------- */
+/* ── Page heading ── */
 .calendar-page h2 {
-  margin: 0.5rem 0 0.25rem 0;
-  font-size: clamp(1.25rem, 2vw, 1.5rem);
-}
-.calendar-note {
-  margin: 0 0 0.75rem 0;
-  color: var(--muted);
-  font-size: 0.95rem;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  margin-bottom: 4px;
 }
 
-/* ---------- Grid ---------- */
+/* ── Month controls ── */
+/* .calendar-controls and .current-month live in style.css (shared) */
+
+/* ── Grid ── */
 .calendar-grid {
-  --cell-size: clamp(90px, 14.2vw, 130px);
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
   touch-action: pan-y;
   overscroll-behavior-x: contain;
 }
 
-/* ---------- Cells (header + days) ---------- */
+/* ── Cells ── */
 .calendar-cell {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  min-height: var(--cell-size);
+  border-radius: var(--radius);
+  min-height: clamp(80px, 12vw, 120px);
   padding: 8px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
+
+/* Header row (day names) */
 .calendar-cell.header {
   min-height: auto;
   background: transparent;
   border: 0;
   box-shadow: none;
-  font-weight: 700;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
   color: var(--muted);
   text-align: center;
-  padding: 6px 0 10px;
-  letter-spacing: 0.3px;
+  padding: 0 0 8px;
 }
 
 /* Day cells */
@@ -141,91 +60,94 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
+  gap: 5px;
   cursor: pointer;
-  transition: transform 0.06s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease;
 }
 .calendar-cell.day:hover {
+  border-color: var(--green);
+  background: color-mix(in oklab, var(--card) 80%, var(--elev));
   transform: translateY(-1px);
-  border-color: var(--accent);
-  background: color-mix(in oklab, var(--card) 75%, var(--accent-weak));
+  box-shadow: var(--shadow);
 }
 .calendar-cell.day:focus-visible {
-  outline: 3px solid color-mix(in oklab, var(--accent) 35%, transparent);
+  outline: 3px solid var(--ring);
   outline-offset: 2px;
 }
 
-/* ---------- Day number ---------- */
+/* ── Day number ── */
 .day-number {
-  font-weight: 800;
-  font-size: 0.95rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
   line-height: 1;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--accent) 16%, var(--card));
+  padding: 3px 7px;
+  border-radius: 99px;
   color: var(--text);
-  border: 1px solid var(--border);
 }
 
-/* ---------- Event titles inside day cells ---------- */
-.event-list {
-  margin-top: 2px;
-  font-size: 0.78rem;
-  line-height: 1.25;
+/* ── Today highlight ── */
+.calendar-cell.day.today .day-number {
+  background: var(--orange);
+  color: #fff;
+}
+
+/* ── Has-events ── */
+.calendar-cell.day.has-events {
+  border-color: color-mix(in oklab, var(--green) 40%, var(--border));
+}
+
+/* ── Event chips inside cells ── */
+.calendar-cell .event-list {
   width: 100%;
-  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  /* override style.css list styles */
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.calendar-cell .event-title {
+  font-size: 0.72rem;
+  font-family: var(--font-body);
   white-space: nowrap;
   overflow: hidden;
-
-}
-.event-title {
-  overflow: hidden;
   text-overflow: ellipsis;
+  background: color-mix(in oklab, var(--green) 12%, var(--elev));
+  color: var(--text);
+  padding: 2px 5px;
+  border-radius: 4px;
+  border-left: 2px solid var(--green);
+  line-height: 1.4;
 }
-.event-more {
+
+.calendar-cell .event-time {
+  font-size: 0.65rem;
+  opacity: 0.72;
+  display: block;
   font-style: italic;
-  font-size: 0.72rem;
-  color: color-mix(in oklab, var(--secondary) 65%, var(--muted));
+  margin-top: 0;
 }
 
-/* Days with events: add subtle orange-green emphasis */
-.calendar-cell.day.has-events {
-  border-color: color-mix(in oklab, var(--secondary) 45%, var(--border));
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--secondary) 30%, transparent);
+.event-more {
+  font-size: 0.68rem;
+  font-style: italic;
+  color: var(--muted);
+  padding-left: 2px;
 }
 
-/* ---------- Small screens ---------- */
-@media (max-width: 520px) {
-  .calendar-controls { gap: 0.5rem; flex-wrap: wrap; }
-  .event-list { font-size: 0.72rem; }
-  .day-number { font-size: 0.9rem; }
+/* ── Small screens ── */
+@media (max-width: 560px) {
+  .calendar-page { padding: 20px 12px 60px; }
+  .calendar-grid { gap: 4px; }
+  .calendar-cell { min-height: clamp(60px, 12vw, 90px); padding: 5px; }
+  .calendar-cell.header { font-size: 0.68rem; }
+  .day-number { font-size: 0.82rem; }
+  .calendar-cell .event-title { font-size: 0.65rem; }
 }
 
-/* ---------- Reduce motion ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .calendar-controls button,
   .calendar-cell.day { transition: none; }
 }
-
-/* highlight current day */
-.calendar-cell.day.today .day-number{
-  background: color-mix(in oklab, var(--secondary) 25%, var(--card));
-  border-color: color-mix(in oklab, var(--secondary) 70%, var(--border));
-}
-
-.event-title{font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.event-title .when{font-variant-numeric:tabular-nums;opacity:.75;margin-right:.25rem}
-
-/* Place under your existing rules */
-.event-title {
-  font-size: 0.8rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.event-time {
-  font-size: 0.75rem;
-  opacity: 0.75;
-  line-height: 1.1;
-}
-

@@ -1,210 +1,192 @@
-/* src/ViewDatePage.css */
+/* src/ViewDatePage.css — tokens from main.css */
 
-/* -------- Brand theme -------- */
-:root {
-  --primary: #123e1d;    /* deep green */
-  --secondary: #f15822;  /* orange accent */
-
-  --bg: #ffffff;
-  --card: #f7f9f7;
-  --text: #111827;
-  --muted: #5b6b60;
-  --border: #dbe6de;
-  --shadow: 0 6px 18px rgba(0,0,0,0.06);
-
-  --accent: var(--primary);
-  --accent-weak: color-mix(in oklab, var(--primary) 14%, #ffffff);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0b0f17;
-    --card: #101821;
-    --text: #e5e7eb;
-    --muted: #a8b5ad;
-    --border: #203326;
-    --shadow: 0 8px 24px rgba(0,0,0,0.35);
-
-    --accent: color-mix(in oklab, var(--primary) 86%, #78d08f);
-    --accent-weak: color-mix(in oklab, var(--primary) 22%, #0b0f17);
-  }
-}
-
-/* -------- Page container -------- */
 .view-date-page {
-  color: var(--text);
-  background: var(--bg);
   max-width: 680px;
-  margin: 2rem auto;
-  padding: 16px;
+  margin: 32px auto;
+  padding: 0 20px 80px;
+  color: var(--text);
 }
 
-/* -------- Header / nav -------- */
-.view-date-page .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 10px 12px;
-  box-shadow: var(--shadow);
-  margin-bottom: 12px;
-}
-.view-date-page .nav {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.view-date-page .nav a,
-.view-date-page .auth-buttons a,
-.view-date-page .auth-buttons span {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 0.95rem;
-}
-.view-date-page .nav a:hover { color: var(--text); }
-
-/* -------- Heading -------- */
+/* ── Page heading ── */
 .view-date-page h2 {
-  margin: 10px 0 12px 0;
-  font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+  font-size: clamp(1.3rem, 3vw, 1.7rem);
   font-weight: 800;
+  margin-bottom: 1.25rem;
 }
 
-/* -------- Add form -------- */
+/* ── Add-event form ── */
 .view-date-page form {
   display: grid;
   gap: 10px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 12px;
-  box-shadow: var(--shadow);
-  margin-bottom: 16px;
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
 }
 
-/* Inputs */
+/* ── Inputs ── */
 .view-date-page input,
 .view-date-page textarea {
   width: 100%;
   color: var(--text);
-  background: #fff;
+  background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 12px;
-  font: inherit;
+  border-radius: var(--radius-sm);
+  padding: 10px 13px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
-@media (prefers-color-scheme: dark) {
-  .view-date-page input,
-  .view-date-page textarea {
-    background: #0f1524;
-  }
-}
-.view-date-page textarea { resize: vertical; min-height: 84px; }
-
+.view-date-page textarea { resize: vertical; min-height: 80px; }
 .view-date-page input:focus,
 .view-date-page textarea:focus {
-  outline: 3px solid color-mix(in oklab, var(--accent) 35%, transparent);
+  outline: 3px solid var(--ring);
   outline-offset: 2px;
-  border-color: var(--accent);
-  background: var(--accent-weak);
+  border-color: var(--green);
+  background: color-mix(in oklab, var(--bg) 94%, var(--green));
 }
 
-/* -------- Buttons -------- */
-.view-date-page button {
-  appearance: none;
-  border: 1px solid var(--border);
-  background: var(--card);
-  color: var(--text);
-  padding: 8px 12px;
-  border-radius: 10px;
+/* ── Form buttons ── */
+.view-date-page form button[type="submit"] {
+  background: var(--green);
+  color: #fff;
+  border: 1px solid var(--green-mid);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  box-shadow: var(--shadow);
-  transition: transform .06s ease, background .2s ease, border-color .2s ease, color .2s ease;
+  box-shadow: 0 2px 8px rgba(18,62,29,0.20);
+  transition: background 0.15s ease, transform 0.08s ease;
 }
-.view-date-page button:hover {
+.view-date-page form button[type="submit"]:hover {
+  background: var(--green-mid);
   transform: translateY(-1px);
-  background: color-mix(in oklab, var(--primary) 10%, var(--card));
-  border-color: var(--accent);
 }
-.view-date-page button:focus-visible {
-  outline: 3px solid color-mix(in oklab, var(--accent) 35%, transparent);
+.view-date-page form button[type="submit"]:focus-visible {
+  outline: 3px solid var(--ring);
   outline-offset: 2px;
 }
 
-/* Primary submit uses orange accent */
-.view-date-page button[type="submit"] {
-  background: color-mix(in oklab, var(--secondary) 20%, var(--card));
-  border-color: var(--secondary);
-  font-weight: 700;
-}
-.view-date-page button[type="submit"]:hover {
-  background: color-mix(in oklab, var(--secondary) 30%, var(--card));
-  border-color: color-mix(in oklab, var(--secondary) 85%, #fff);
-}
-
-/* -------- Event list -------- */
+/* ── Event list ── */
 .view-date-page ul {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
+
 .view-date-page li {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
   display: grid;
   gap: 6px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
 }
-.view-date-page li:last-child { border-bottom: 0; }
 
 .view-date-page li strong {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
   display: block;
-  font-weight: 800;
-}
-.view-date-page .description {
-  font-size: 13px;
-  opacity: 0.9;
-  white-space: pre-wrap;
 }
 
-/* Action buttons row */
+.view-date-page li .event-time {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.view-date-page .desc {
+  font-size: 0.93rem;
+  color: var(--text-2);
+  white-space: pre-wrap;
+  margin-top: 4px;
+}
+
+/* ── Action buttons (Edit / Delete / Save / Cancel) ── */
 .view-date-page .actions {
   display: flex;
   gap: 8px;
+  margin-top: 4px;
 }
 
-/* -------- Back row -------- */
-.view-date-page .back-row { margin-top: 16px; }
-
-/* -------- Error text/card -------- */
-.view-date-page .error {
-  color: #b00020;
-  font-size: 14px;
-  margin-top: 6px;
+.view-date-page .actions button {
+  appearance: none;
+  background: var(--elev);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 6px 13px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
+.view-date-page .actions button:hover {
+  background: color-mix(in oklab, var(--elev) 70%, var(--green));
+  border-color: var(--green);
+}
+.view-date-page .actions button.danger {
+  color: #b8001e;
+  border-color: rgba(184,0,30,0.3);
+}
+.view-date-page .actions button.danger:hover {
+  background: rgba(184,0,30,0.08);
+  border-color: #b8001e;
+}
+
+@media (prefers-color-scheme: dark) {
+  .view-date-page .actions button.danger { color: #ff8091; border-color: rgba(255,80,100,0.3); }
+  .view-date-page .actions button.danger:hover { background: rgba(255,80,100,0.08); border-color: #ff8091; }
+}
+
+/* ── Sign-in note ── */
+.view-date-page .calendar-note a { color: var(--orange); }
+
+/* ── Error card (invalid URL) ── */
 .view-date-page .error-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px;
-  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
 }
-.view-date-page .error-card h2 { margin-top: 0; }
+.view-date-page .error-card h2 { margin-bottom: 8px; }
+.view-date-page .error-card button {
+  margin-top: 14px;
+  background: var(--green);
+  color: #fff;
+  border: 1px solid var(--green-mid);
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+}
 
-/* -------- Small screens -------- */
+/* ── Edit form fields inside a list item ── */
+.view-date-page li input,
+.view-date-page li textarea {
+  margin-top: 2px;
+}
+
+/* ── Small screens ── */
 @media (max-width: 520px) {
-  .view-date-page .header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
+  .view-date-page { padding: 0 14px 60px; margin-top: 20px; }
+  .view-date-page form { padding: 14px; }
 }
 
-/* -------- Reduce motion -------- */
 @media (prefers-reduced-motion: reduce) {
-  .view-date-page button { transition: none; }
+  .view-date-page form button,
+  .view-date-page .actions button { transition: none; }
 }
-
-.event-time{font-size:.9rem;opacity:.8}

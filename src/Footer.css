@@ -1,22 +1,23 @@
-/* Uses your existing tokens; tuned for #123e1d (green) + #f15822 (orange) */
+/* src/Footer.css — tokens from main.css */
 
 .site-footer {
-  margin-top: 32px;
+  margin-top: auto;
   background: var(--card);
-  border-top: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid var(--border);
   color: var(--text);
 }
 
 .footer-inner {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 18px 20px;
+  padding: 20px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
 }
 
+/* ── Brand ── */
 .footer-brand {
   display: flex;
   align-items: center;
@@ -29,70 +30,89 @@
   justify-content: center;
   width: 34px;
   height: 34px;
-  border-radius: 8px;
-  background: var(--brand-2); /* #123e1d */
+  border-radius: var(--radius-sm);
+  background: var(--green);
   color: #fff;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.72rem;
   letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
 
 .footer-name {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
   font-weight: 700;
-  opacity: 0.95;
+  color: var(--text);
 }
 
+/* ── Links ── */
 .footer-links {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .footer-link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 10px;
+  gap: 7px;
+  padding: 7px 13px;
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease, transform 0.08s ease, background 0.15s ease;
+}
+.footer-link:hover {
+  border-color: var(--green);
   color: var(--text);
-  border: 1px solid rgba(255,255,255,0.12);
-  background: var(--elev);
-  transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+  background: color-mix(in oklab, var(--bg) 80%, var(--elev));
+  transform: translateY(-1px);
   text-decoration: none;
 }
-
-.footer-link:hover {
-  transform: translateY(-1px);
-  border-color: rgba(241, 88, 34, 0.45); /* orange accent */
-  box-shadow: 0 8px 18px rgba(0,0,0,0.18);
-}
-
-.footer-link svg { color: var(--brand); } /* #f15822 */
-.footer-link span { white-space: nowrap; }
+.footer-link svg { flex-shrink: 0; }
 
 .footer-link.donate {
-  background: linear-gradient(180deg, var(--brand), #c84513); /* orange CTA */
-  border-color: rgba(255,255,255,0.18);
+  background: var(--orange);
+  border-color: var(--orange-dark);
+  color: #fff;
+  font-weight: 600;
+}
+.footer-link.donate:hover {
+  background: var(--orange-dark);
+  border-color: var(--orange-dark);
   color: #fff;
 }
-
 .footer-link.donate svg { color: #fff; }
 
+/* ── Bottom bar ── */
 .footer-bottom {
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid var(--border);
   text-align: center;
-  padding: 10px 16px 16px;
+  padding: 10px 20px 14px;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-style: italic;
 }
 
-/* Stack on small screens */
-@media (max-width: 640px) {
+/* ── Mobile ── */
+@media (max-width: 600px) {
   .footer-inner {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 16px;
   }
-  .footer-links {
-    justify-content: space-between;
-  }
+  .footer-links { width: 100%; justify-content: space-between; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-link { transition: none; }
 }
