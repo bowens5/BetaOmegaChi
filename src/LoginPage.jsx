@@ -1,27 +1,41 @@
 // src/LoginPage.jsx
+//
+// Email / password login form backed by Firebase Auth.  On success the user
+// is redirected to the home page.  A password-reset flow is also provided.
+//
+// Auth state → localStorage sync happens here so other components (NavBar,
+// ViewDatePage) can cheaply read `localStorage.getItem('loggedIn')` without
+// needing a live Firebase listener everywhere.
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from './firebase';
 import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
 } from 'firebase/auth';
+import log from './logger';
 import './LoginPage.css';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
-  const [showPw, setShowPw] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState('');
+  const [showPw,   setShowPw]   = useState(false);
+  const [busy,     setBusy]     = useState(false);
+  const [err,      setErr]      = useState('');
 
-  // Keep localStorage in sync with Firebase auth
+  // Keep localStorage in sync with Firebase auth so that a page reload while
+  // already signed in doesn't flash a "not logged in" state.
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
-      if (u) localStorage.setItem('loggedIn', 'yes');
-      else localStorage.removeItem('loggedIn');
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        log.auth('LoginPage: user is signed in, syncing localStorage');
+        localStorage.setItem('loggedIn', 'yes');
+      } else {
+        localStorage.removeItem('loggedIn');
+      }
     });
     return () => unsub();
   }, []);
@@ -30,10 +44,13 @@ export default function LoginPage() {
     e.preventDefault();
     setErr('');
     setBusy(true);
+    log.auth('LoginPage: sign-in attempt for', email);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/'); // or navigate('/calendar')
+      log.auth('LoginPage: sign-in successful, redirecting home');
+      navigate('/');
     } catch (e) {
+      log.error('LoginPage: sign-in failed', e.code, e.message);
       setErr(niceAuthError(e));
     } finally {
       setBusy(false);
@@ -42,13 +59,15 @@ export default function LoginPage() {
 
   async function resetPassword() {
     if (!email) {
-      setErr('Enter your email above, then click “Forgot password?”.');
+      setErr('Enter your email above, then click "Forgot password?".');
       return;
     }
+    log.auth('LoginPage: sending password reset to', email);
     try {
       await sendPasswordResetEmail(auth, email);
       alert('Password reset email sent.');
     } catch (e) {
+      log.error('LoginPage: password reset failed', e.code);
       setErr(niceAuthError(e));
     }
   }
@@ -99,6 +118,11 @@ export default function LoginPage() {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Converts a Firebase Auth error into a user-friendly string. */
 function niceAuthError(e) {
   const code = e?.code || '';
   if (code.includes('auth/invalid-credential') || code.includes('auth/wrong-password'))
