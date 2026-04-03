@@ -3,15 +3,14 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
-// ⬇️ Replace with the config from Firebase Console
 const firebaseConfig = {
-  apiKey: "AIzaSyB8xYwghDeDQVlHvQ9Nlb9pWYN5tQZQVcM",
-  authDomain: "beta-omega-chi.firebaseapp.com",
-  projectId: "beta-omega-chi",
-  storageBucket: "beta-omega-chi.firebasestorage.app",
-  messagingSenderId: "985142616884",
-  appId: "1:985142616884:web:3fef12db738d78ea15bb61",
-  measurementId: "G-517GQWSH9F"
+  apiKey:            process.env.FIREBASE_API_KEY,
+  authDomain:        process.env.FIREBASE_AUTH_DOMAIN,
+  projectId:         process.env.FIREBASE_PROJECT_ID,
+  storageBucket:     process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId:             process.env.FIREBASE_APP_ID,
+  measurementId:     process.env.FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
